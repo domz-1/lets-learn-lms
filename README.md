@@ -257,3 +257,14 @@ pnpm build
 - Run `npx prisma migrate deploy` during backend deployment.
 - Restart the backend after changing OpenRouter env values.
 - Do not expose `OPENROUTER_API_KEY` to the frontend. The frontend should call the protected backend AI endpoint.
+
+## Docker Setup
+
+To run the entire stack with Docker Compose:
+```bash
+docker-compose up -d
+```
+The services will be available at:
+- Frontend: http://localhost:3001
+- Backend: http://localhost:3000
+- Database: localhost:5432 (PostgreSQL)

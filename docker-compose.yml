@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Database service
+  postgres:
+    image: postgres:15
+    container_name: lets-learn-lms-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: lets_learn_lms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lets-learn-lms-backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/lets_learn_lms
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: lets_learn_lms
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lets-learn-lms-frontend
+    restart: always
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/usr/src/app
+      - /usr/src/app/node_modules
+
+volumes:
+  postgres_data:
